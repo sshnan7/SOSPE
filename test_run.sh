@@ -1,0 +1,19 @@
+#conda init 2022project
+
+
+#for var in #101 102 103 104 #61 62 63 64
+for var in 105 #65 105 85 #441 442 443 444 371 372 #81 #61 62 63 64 84 #65 #105 37 39 84 46 #61 62 63 64 untrained? #105
+do
+    
+    #python main.py --batch_size 64 --eval --output_dir weights/scratch_final/default --fineresume weights/finetuning_uai/vec_ver3/mask75/block/8/checkpoint0019.pth --test_dir $var --in_chan 16 --enc_layers 4 --dec_layers 2 --img_dir results/vis/70/ --device cuda:0 --frame_skip 1 --stack_avg 64 --nheads 4 --slow_time 1 --model_scale 't' --posemodel --kernel 8 --hidden_dim 128 --stride 4 --group_idx 0
+    python main.py --batch_size 4 --eval --output_dir weights/scratch_final/default --resume weights/CIKM_2024/scratch_final/default/checkpoint0017.pth --test_dir $var --in_chan 16 --enc_layers 4 --dec_layers 2 --img_dir results/vis/$var/ --device cuda:0 --frame_skip 1 --stack_avg 64 --nheads 4 --slow_time 1 --model_scale 't' --posemodel --kernel 8 --hidden_dim 128 --stride 4 #--vis    
+    python main.py --batch_size 1 --eval --output_dir weights/scratch_final/default --resume weights/CIKM_2024/scratch_final/default/checkpoint0017.pth --test_dir $var --in_chan 16 --enc_layers 4 --dec_layers 2 --img_dir results/vis/$var/ --device cuda:0 --frame_skip 1 --stack_avg 64 --nheads 4 --slow_time 1 --model_scale 't' --posemodel --kernel 8 --hidden_dim 128 --stride 4 #--vis
+    #python main.py --batch_size 64 --eval --output_dir weights/scratch_final/default --resume weights/CIKM_2024/one_subgroup/1/checkpoint0019.pth --test_dir $var --in_chan 16 --enc_layers 4 --dec_layers 2 --img_dir results/vis/70/ --device cuda:0 --frame_skip 1 --stack_avg 64 --nheads 4 --slow_time 1 --model_scale 't' --posemodel --kernel 8 --hidden_dim 128 --stride 4 --group_idx 1
+    #python main.py --batch_size 64 --eval --output_dir weights/scratch_final/default --resume weights/CIKM_2024/one_subgroup/2/checkpoint0016.pth --test_dir $var --in_chan 16 --enc_layers 4 --dec_layers 2 --img_dir results/vis/70/ --device cuda:0 --frame_skip 1 --stack_avg 64 --nheads 4 --slow_time 1 --model_scale 't' --posemodel --kernel 8 --hidden_dim 128 --stride 4 --group_idx 2
+    #python main.py --batch_size 64 --eval --output_dir weights/scratch_final/default --resume weights/CIKM_2024/one_subgroup/3/checkpoint0017.pth --test_dir $var --in_chan 16 --enc_layers 4 --dec_layers 2 --img_dir results/vis/70/ --device cuda:0 --frame_skip 1 --stack_avg 64 --nheads 4 --slow_time 1 --model_scale 't' --posemodel --kernel 8 --hidden_dim 128 --stride 4 --group_idx 3
+    #python main.py --batch_size 64 --eval --output_dir weights/scratch_final/default --fineresume weights/finetuning_uai/one_group/default/0/checkpoint0018.pth --test_dir $var --in_chan 16 --enc_layers 4 --dec_layers 2 --img_dir results/vis/$var/ --device cuda:1 --frame_skip 1 --stack_avg 64 --nheads 4 --slow_time 1 --model_scale 't' --posemodel --kernel 8 --hidden_dim 128 --stride 4 --bbox_loss_coef 0 --group_idx 0
+    #python main.py --batch_size 64 --eval --output_dir weights/scratch_final/default --fineresume weights/finetuning_uai/vec_ver3/mask75/block/8/checkpoint0019.pth --test_dir $var --in_chan 16 --enc_layers 4 --dec_layers 2 --img_dir results/vis/$var/ --device cuda:1 --frame_skip 1 --stack_avg 64 --nheads 4 --slow_time 1 --model_scale 't' --posemodel --kernel 8 --hidden_dim 128 --stride 4 --bbox_loss_coef 0 
+    #python main.py --batch_size 16 --pose hmdr --eval --vis --output_dir weights/mpii_vcn_hmdr/ --resume weights/mpii_vcn_hmdr/checkpoint0014.pth --test_dir $var --box_feature 16 --img_dir results/vis/$var/ --soft_nms --box_threshold 0.8 --device cuda:3 
+    
+done
+ 
