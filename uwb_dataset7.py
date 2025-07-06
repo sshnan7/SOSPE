@@ -25,7 +25,7 @@ class UWBDataset(Dataset):
         
         '''
         dataset 처리
-        rf와 이미지의 경우에는 init 할 때부터 읽어와서 메모리에 올리지만 gt는 데이터를 활용할 때마다 load함.
+        
         mode - train : 학습을 위함.  rf, gt, img 다 있는 경우
                 test : test를 위함. rf, gt, img 다 있는 경우 
 
@@ -36,7 +36,7 @@ class UWBDataset(Dataset):
         self.load_mask = True #False #True if args.pose is not None and mode != 'train' else False
         self.load_img = args.vis and mode != 'train'                                                                                                          
 
-        self.is_normalize = False #True #True
+        
         self.is_ftr_normalize = False #True
         self.cutoff = args.cutoff
         
@@ -60,13 +60,13 @@ class UWBDataset(Dataset):
             outlier_by_ewma = self.stack_avg + 0
         
         self.load_cd = True
-        #self.load_img = True
+        
         
         data_path = '/data/nlos/save_data_ver6'
-        #data_path = '/data/nlos/save_data_ver4'
+        
         data_path_list = glob.glob(data_path + '/*')
         data_path_list = sorted(data_path_list)
-        #print(data_path_list)
+        
         rf_data = []  # rf data list
         train_idx_list = []
         raw_list = []
@@ -441,11 +441,7 @@ class UWBDataset(Dataset):
                         #subtract_rf = make_hilbert_signal(temp_raw_rf.clone()) - make_hilbert_signal(mean_rf.clone())
                         subtract_rf = temp_raw_rf.clone() - mean_rf.clone()
                         
-                        if self.is_normalize is True:
-                            for ch in range(subtract_rf.shape[0]):
-                                #print(subtract_rf.shape)
-                                #temp_raw_rf[i,j] = temp_raw_rf[i,j] - np.mean(temp_raw_rf[i,j])
-                                subtract_rf[ch] = subtract_rf[ch]/stdev_set[ch]
+                        
                         rf_data.append(subtract_rf)
                         if idx_by_folder >= self.store_frames*self.frame_skip + (self.slow_time-1) :
                             train_idx_list.append(len(rf_data)-1)
