@@ -87,23 +87,6 @@ class UWBDataset(Dataset):
         outlier_list = [] 
         remove_dir = []
         
-        stdev_set = torch.Tensor([0.2509, 0.1846, 0.1719, 0.1611, 0.1305, 0.1215, 0.1212, 0.1206, 0.1832,
-                    0.1733, 0.1568, 0.1437, 0.1350, 0.1257, 0.1235, 0.1152, 0.1508, 0.1354,
-                    0.1302, 0.1232, 0.1714, 0.1520, 0.1465, 0.1344, 0.1224, 0.1151, 0.1157,
-                    0.1088, 0.2353, 0.2023, 0.1768, 0.1491, 0.1661, 0.1809, 0.2009, 0.2127,
-                    0.1280, 0.1239, 0.1076, 0.1111, 0.1495, 0.1419, 0.1480, 0.1538, 0.1353,
-                    0.1292, 0.1221, 0.1219, 0.1285, 0.1218, 0.1268, 0.1245, 0.1471, 0.1462,
-                    0.1559, 0.1642, 0.1151, 0.1165, 0.1297, 0.1242, 0.1915, 0.1954, 0.2059,
-                    0.2514])
-        mean_set = torch.Tensor([ 0.0078,  0.0077, -0.0199, -0.0172,  0.0112,  0.0115,  0.0035,  0.0187,
-                  -0.0118,  0.0142,  0.0144,  0.0002,  0.0119,  0.0174, -0.0044, -0.0119,
-                   0.0117,  0.0019, -0.0014,  0.0045,  0.0137,  0.0150, -0.0159, -0.0140,
-                   0.0028, -0.0002,  0.0055,  0.0181,  0.0157,  0.0041, -0.0169, -0.0140,
-                  -0.0151, -0.0183,  0.0017,  0.0046,  0.0179, -0.0031,  0.0066,  0.0101,
-                   0.0038,  0.0099,  0.0069,  0.0020, -0.0053,  0.0092,  0.0076,  0.0066,
-                   0.0109,  0.0002,  0.0085,  0.0090,  0.0102,  0.0021,  0.0088,  0.0149,
-                   0.0185,  0.0046, -0.0102,  0.0117, -0.0161, -0.0169, -0.0156,  0.0021])
-        
         print("start - data read ", mode)
         # 데이터셋 세부 내용은 비가시drive/미팅자료/8월 데이터 수집 참고
         test_dir = args.test_dir
@@ -129,9 +112,7 @@ class UWBDataset(Dataset):
             valid_dir = [1]
             #train_dir = [x for x in list(range(25)) if x not in valid_dir] # 29
             train_dir = [x for x in list(range(43)) if x not in valid_dir]
-            #train_dir = [0,2,3,4, 5,6,7,8, 10, 11,12,14, 15, 16, 20] # 29
-            #outlier_list = [4, 9, 15, 19, 20]
-        #valid_dir = [37, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
+            
 
         if self.model_debug or args.eval:
             train_dir = [1, 2]
@@ -179,8 +160,7 @@ class UWBDataset(Dataset):
                     outlier_list = list(range(1900-self.stack_avg-10))
                     outlier_list += list(range(2200, 2300-self.stack_avg-10))
                     outlier_list += list(range(2500,3001))
-                    #outlier_list = list(range(2000))
-                    #outlier_list += list(range(2600,3001))
+                    
                 elif test_set == 64:
                     test_dir = [42]
                     outlier_list += list(range(2400-self.stack_avg-10))
@@ -287,26 +267,22 @@ class UWBDataset(Dataset):
                     outlier_list = list(range(300-self.stack_avg-10))
                     outlier_list += list(range(600, 700-self.stack_avg-10))
                     outlier_list += list(range(1000,2001))
-                    #outlier_list = list(range(700,2001))
+                    
                 elif test_set == 101:
                     test_dir = [48]
                     outlier_list = list(range(1000-self.stack_avg-10))
                     outlier_list += list(range(1200, 1300-self.stack_avg-10))
                     outlier_list += list(range(1500,2001))
-                    #outlier_list = list(range(700))
-                    #outlier_list += list(range(1400,2001))
+                    
                 elif test_set == 103:
                     test_dir = [48]
                     outlier_list = list(range(1500-self.stack_avg-10))
-                    #outlier_list = list(range(1400))
+                    
                 elif test_set == 104:
                     test_dir = [51]
                 elif test_set == 105:
                     test_dir = [48, 51]
-                    #test_dir = [48, 49, 50, 51]
-                    #outlier_list = list(range(300-self.stack_avg-10))
-                    #outlier_list += list(range(1000, 1100-self.stack_avg-10))
-                    #outlier_list += list(range(1200, 1300-self.stack_avg-10))
+                    
                 
                 elif test_set == 110:
                     test_dir = [49]
