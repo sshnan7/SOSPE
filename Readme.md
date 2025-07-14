@@ -11,8 +11,14 @@ Currently, only the code is accessible; the data, model, installation, training,
 
 # Update Schedule
 - **2025-07-06**: Dataloader refactoring  
-- **2025-07-13**: Main & engine refactoring, dataset upload  
-- **2025-07-20**: Reproducibility check  
+- **2025-07-13**: 1. Main & engine refactoring. 2. dataset upload  
+- **2025-07-20**: 1. Scratch Reproducibility check. 2. Make tutorial "RGB image visulaization" and "signal visualization"
+- **2025-07-27**: pretraining Reproducibility check  
+
+# Update Note
+- **2025-07-06**: Dataloader refactoring finished
+- **2025-07-13**: Main & engine delete unuse code. 
+                : dataset is 128GB. It's taking longer than expected. Sorry for delayed.
 
 # Get Started
 ## Installation

@@ -11,7 +11,6 @@ import torch
 from torch.utils.data import DataLoader, DistributedSampler
 
 import util.misc as utils
-#from engine import evaluate, train_one_epoch
 from engine import train_one_epoch_downstream, evaluate_downstream
 from models.data2vec_base import build_model
 from uwb_dataset7 import UWBDataset, detection_collate, detection_collate_val
@@ -19,7 +18,6 @@ from uwb_dataset7 import UWBDataset, detection_collate, detection_collate_val
 
 from custom_lr_scheduler import CosineAnnealingWarmUpRestarts
 from collections import defaultdict
-#torch.backends.cudnn.benchmark = True
 
 #torch.backends.cudnn.deterministic = True #or you can use underline
 torch.use_deterministic_algorithms(True, warn_only=True)
@@ -62,8 +60,6 @@ def get_args_parser():
                         help="Number of decoding layers in the transformer")
     parser.add_argument('--stride', default=2, type=int, # 6
                         help="signal block stride")
-    #parser.add_argument('--attn_mean', action='store_true', default=False, 
-    #                    help="using transformer results mean")
     parser.add_argument('--dim_feedforward', default=2048, type=int,
                         help="Intermediate size of the feedforward layers in the transformer blocks")
     parser.add_argument('--kernel', default=6, type=int,
@@ -109,9 +105,7 @@ def get_args_parser():
                         help="if do test training(selfsupervised)")
 
     # Loss
-    #parser.add_argument('--no_aux_loss', dest='aux_loss', action='store_false', default=False,
-    #                    help="Disables auxiliary decoding losses (loss at each layer)")
-    # * Matcher
+    # * Hungarian Matcher hyperparam
     parser.add_argument('--set_cost_class', default=20, type=float, #20
                         help="Class coefficient in the matching cost")
     parser.add_argument('--set_cost_keypoint', default=1, type=float, # origin : 1
@@ -120,11 +114,12 @@ def get_args_parser():
 
     # * Loss coefficient
     parser.add_argument('--keypoint_loss_coef', default=50, type=float) # origin : 100
+
     parser.add_argument('--cls_loss_coef', default=1, type=float) # origin : 1
     parser.add_argument('--bbox_loss_coef', default=1, type=float) # origin : 1
     parser.add_argument('--raw_loss_coef', default=1, type=float) # origin : 1
     parser.add_argument('--vec_loss_coef', default=1, type=float) # origin : 1
-    #parser.add_argument('--feature_loss_coef', default=100, type=float) # 20
+
     parser.add_argument('--eos_coef', default=0.1, type=float,
                         help="Relative classification weight of the no-object class")
     parser.add_argument('--output_dir', default='./weights/ver4/',
@@ -162,7 +157,6 @@ def get_args_parser():
     parser.add_argument('--gt_head', type=str, default='half', choices=('normal', 'half', 'coco'),
                         help="gt_head_location")
     
-
     # evaluate paramater
     parser.add_argument('--vis', action='store_true', default=False,
                 help='visualize the image for debugging')
@@ -194,12 +188,11 @@ def get_args_parser():
 
 def main(args):
     utils.init_distributed_mode(args)
-    print("git:\n  {}\n".format(utils.get_sha()))
+   #print("git:\n  {}\n".format(utils.get_sha()))
     print("torch version ", torch.__version__)
     
     print("----------------pre train learning {}-------------------".format(args.pretrain))
 
-    #print(args)
     print(torch.backends.cudnn.benchmark)
     
     output_dir = Path(args.output_dir)
@@ -223,29 +216,19 @@ def main(args):
     
     model, selfmodel, selfcriterion, pose_model, posecriterion = build_model(args)
 
-    
     model_without_ddp = model
+
+    #not implemented cause we experiment on single gpu env
     if args.distributed:
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu], find_unused_parameters=True)
         model_without_ddp = model.module
-    #n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    #print('number of params:', n_parameters)
     
     pose_model_without_ddp = pose_model
     selfmodel_without_ddp = selfmodel
-    #if pose_model != None :
-        #n_parameters = n_parameters + sum(p.numel() for p in pose_model.parameters() if p.requires_grad)
-        #print("add pose model")
-        #print('number of params:', n_parameters)
-    
-    #if selfmodel != None :
-        #n_parameters = n_parameters + sum(p.numel() for p in selfmodel.parameters() if p.requires_grad)
-        #print("add selfsupervised model")
-        #print('number of params:', n_parameters)
     
     param_dicts = []
-    pretrain_param_dicts = []
-    #downstream_param_dicts = []
+
+    
     n_parameters = 0
     n_pretrain_parameters = 0
     
@@ -287,20 +270,13 @@ def main(args):
                 param_dicts += [{"params" : p}]
 
     if args.lr_scheduler == 'linear' or args.TT:
-        #optimizer = torch.optim.AdamW(param_dicts, lr=args.lr, betas = (args.beta1, args.beta2), weight_decay=0)
         optimizer = torch.optim.SGD(param_dicts, lr=args.lr, momentum=args.beta1, weight_decay=args.weight_decay)
         lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 100, 0.1) # after {lr_drop} epoch, lr drop to 1/10 
     elif args.lr_scheduler =='cosine':
         optimizer = torch.optim.AdamW(param_dicts, lr=args.lr_min, betas = (args.beta1, args.beta2), weight_decay=args.weight_decay)
         #optimizer = torch.optim.AdamW([{'params': param_dicts, 'lr': args.lr_min}], lr = args.lr_min, weight_decay=args.weight_decay)
-        '''
-        optimizer = torch.optim.AdamW([{'params': downstream_param_dicts, 'lr':args.lr_min, weight_decay=args.weight_decay}, 
-            {'params': param_dicts, 'lr': args.lr_min, weight_decay=args.weight_decay}]
-        )
-        '''
+        
         lr_scheduler = CosineAnnealingWarmUpRestarts(optimizer, T_0=10, T_mult=1, eta_max=args.lr,  T_up=10, gamma=0.75)
-        #lr_scheduler = CosineAnnealingWarmUpRestarts(optimizer, T_0=10, T_mult=1, eta_max=args.lr,  T_up=10, gamma=0.75)
-        #lr_scheduler = CosineAnnealingWarmUpRestarts(optimizer, T_0=5, T_mult=1, eta_max=args.lr, T_up=5, gamma=0.9)
     
     if args.pretrain_model :
         print("-------------------------------load pretrain encoder model----------------------------------------")
@@ -353,6 +329,7 @@ def main(args):
                                         test_type = test_type, gt_head = args.gt_head, \
                                         pretrain = args.pretrain, downstream = args.downstream, former_info = args.former_info , former_person_info = args.former_person_info)
         return
+    
     print("Start training")
     save_freq = 1
     if args.pretrain :
